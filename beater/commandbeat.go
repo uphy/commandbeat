@@ -2,7 +2,6 @@ package beater
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
@@ -17,6 +16,10 @@ type Commandbeat struct {
 	config config.Config
 	client beat.Client
 }
+
+const (
+	defaultSchedule string = "@every 1m"
+)
 
 // New creates new beater
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
@@ -43,25 +46,24 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 		return err
 	}
 
-	ticker := time.NewTicker(bt.config.Period)
-	counter := 1
+	scheduler := newTaskSchedular(bt.client)
+	defer scheduler.stop()
+	for name, task := range bt.config.Tasks {
+		spec := task.Schedule
+		if spec == "" {
+			spec = defaultSchedule
+		}
+		if err := scheduler.schedule(spec, name, &task); err != nil {
+			return err
+		}
+	}
+	scheduler.start()
+
 	for {
 		select {
 		case <-bt.done:
 			return nil
-		case <-ticker.C:
 		}
-
-		event := beat.Event{
-			Timestamp: time.Now(),
-			Fields: common.MapStr{
-				"type":    b.Info.Name,
-				"counter": counter,
-			},
-		}
-		bt.client.Publish(event)
-		logp.Info("Event sent")
-		counter++
 	}
 }
 

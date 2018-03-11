@@ -3,8 +3,45 @@
 ############################# Commandbeat ######################################
 
 commandbeat:
-  # Defines how often an event is sent to the output
-  period: 1s
+  tasks:
+    command-string:
+      command: echo "hello world"
+    command-array:
+      command: 
+        - echo
+        - hello world
+    parser-csv:
+      command: echo "hello,world,1"
+      parser:
+        type: csv
+        fields:
+          - name: field1
+            type: string
+          - name: field2
+            type: string
+          - name: field3
+            type: int
+    parser-csv-multi:
+      command: sh -c 'echo "2018/03/10 11:17:10,hello\n2018/03/10 11:17:12,hello"'
+      schedule: "@every 1s"
+      parser:
+        type: csv
+        fields:
+          - name: "@timestamp"
+            type: timestamp
+            format: 2006/01/02 15:04:05
+          - name: message
+            type: string
+    parser-json:
+      command: echo '{"message":"hello world", "year":2018}'
+      parser:
+        type: json
+    schedule-cron1:
+      command: echo "hello world"
+      schedule: "@every 1m"
+    schedule-cron2:
+      command: echo "hello world"
+      schedule: "*/15 * * * *"
 
 #================================ General =====================================
 

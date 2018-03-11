@@ -5,3 +5,7 @@
 /commandbeat
 /commandbeat.test
 *.pyc
+
+/logs
+/data
+/commandbeat
