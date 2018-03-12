@@ -14,8 +14,8 @@ os:
 
 env:
   matrix:
-    - TARGETS="check"
-    - TARGETS="testsuite"
+    # - TARGETS="ci"
+    - TARGETS="crosscompile"
 
   global:
     # Cross-compile for amd64 only to speed up testing.
@@ -38,7 +38,17 @@ install:
   - true
 
 script:
-  - make $TARGETS
+  - ./build.sh
 
 after_success:
   # Copy full.cov to coverage.txt because codecov.io requires this file
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key: $GITHUB_TOKEN
+  file_glob: true
+  file: '/home/travis/gopath/src/github.com/uphy/commandbeat/build/dist/*'
+  overwrite: true
+  on:
+    tags: true
