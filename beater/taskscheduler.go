@@ -3,10 +3,11 @@ package beater
 import (
 	"errors"
 
-	"github.com/elastic/beats/libbeat/beat"
-	"github.com/elastic/beats/libbeat/logp"
 	"github.com/robfig/cron"
 	"github.com/uphy/commandbeat/config"
+
+	"github.com/elastic/beats/libbeat/beat"
+	"github.com/elastic/beats/libbeat/logp"
 )
 
 type (

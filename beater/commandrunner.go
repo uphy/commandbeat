@@ -8,9 +8,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/uphy/commandbeat/parser"
+
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/logp"
-	"github.com/uphy/commandbeat/parser"
 )
 
 type (
