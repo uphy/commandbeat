@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/uphy/commandbeat.svg?branch=master)](https://travis-ci.org/uphy/commandbeat)
+
 # Commandbeat
 
 Welcome to Commandbeat.
