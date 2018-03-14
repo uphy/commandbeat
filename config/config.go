@@ -14,6 +14,7 @@ type (
 	// Config is the root struct for the config file.
 	Config struct {
 		Tasks map[string]TaskConfig `config:"tasks"`
+		Debug bool                  `config:"debug"`
 	}
 	// TaskConfig represents the task config.
 	TaskConfig struct {
@@ -21,6 +22,7 @@ type (
 		WorkingDirectory string                 `config:"workdir"`
 		ParserRaw        map[string]interface{} `config:"parser"`
 		Schedule         string                 `config:"schedule"`
+		Debug            bool                   `config:"debug"`
 	}
 )
 

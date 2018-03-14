@@ -3,6 +3,7 @@
 ############################# Commandbeat ######################################
 
 commandbeat:
+  debug: true
   tasks:
     command-string:
       command: echo "hello world"
@@ -42,6 +43,10 @@ commandbeat:
     schedule-cron2:
       command: echo "hello world"
       schedule: "*/15 * * * *"
+    debug-task:
+      command: echo hello
+      debug: true
+      schedule: "*/3 * * * *"
 
 #================================ General =====================================
 

@@ -3,6 +3,7 @@ package beater
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os/exec"
 	"syscall"
@@ -23,11 +24,12 @@ type (
 		command    string
 		args       []string
 		exitStatus int
+		debug      bool
 	}
 )
 
-func newCommand(name string, commandName string, args ...string) *commandSpec {
-	cmd := commandSpec{name, commandName, args, 0}
+func newCommand(name string, commandName string, debug bool, args ...string) *commandSpec {
+	cmd := commandSpec{name, commandName, args, 0, debug}
 	return &cmd
 }
 
@@ -35,7 +37,14 @@ func newCommandRunner(client beat.Client) *commandRunner {
 	return &commandRunner{client}
 }
 
+func (c *commandRunner) debug(spec *commandSpec, msg string, args ...interface{}) {
+	if spec.debug {
+		logp.Info("[%s] %s", spec.name, fmt.Sprintf(msg, args...))
+	}
+}
+
 func (c *commandRunner) run(spec *commandSpec, parser parser.Parser) {
+	c.debug(spec, "executing command(command=%s, args=%v)", spec.command, spec.args)
 	cmd := exec.Command(spec.command, spec.args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -56,12 +65,13 @@ func (c *commandRunner) run(spec *commandSpec, parser parser.Parser) {
 			logp.Err("failed to read stdin. (cmd=%v, err=%s)", cmd.Args, err)
 		}
 		lineStr := string(line)
+		c.debug(spec, "<stdout>%s", line)
 		v, err := parser.Parse(lineStr)
 		if err != nil {
 			logp.Err("failed to parse the line got from stdin. (cmd=%v, line=%s, err=%s)", cmd.Args, lineStr, err)
 			continue
 		}
-
+		c.debug(spec, "<parsed>%#v", v)
 		var timestamp time.Time
 		if t, ok := v["@timestamp"]; ok {
 			timestamp = t.(time.Time)
@@ -74,7 +84,10 @@ func (c *commandRunner) run(spec *commandSpec, parser parser.Parser) {
 			Timestamp: timestamp,
 			Fields:    v,
 		}
-		c.client.Publish(event)
+		c.debug(spec, "<event>%#v", event)
+		if !spec.debug {
+			c.client.Publish(event)
+		}
 	}
 	if err := cmd.Wait(); err != nil {
 		if e2, ok := err.(*exec.ExitError); ok {

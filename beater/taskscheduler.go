@@ -51,7 +51,7 @@ func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) 
 	if len(c) > 0 {
 		commandArgs = c[1:]
 	}
-	return newCommand(name, commandName, commandArgs...), nil
+	return newCommand(name, commandName, task.Debug, commandArgs...), nil
 }
 
 func (t *taskScheduler) start() {
