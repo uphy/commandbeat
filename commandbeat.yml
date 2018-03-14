@@ -3,6 +3,7 @@
 ############################# Commandbeat ######################################
 
 commandbeat:
+  debug: true
   tasks:
     command-string:
       command: echo "hello world"

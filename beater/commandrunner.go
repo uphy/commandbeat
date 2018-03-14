@@ -71,7 +71,7 @@ func (c *commandRunner) run(spec *commandSpec, parser parser.Parser) {
 			logp.Err("failed to parse the line got from stdin. (cmd=%v, line=%s, err=%s)", cmd.Args, lineStr, err)
 			continue
 		}
-		c.debug(spec, "<stdout-parsed>%#v", v)
+		c.debug(spec, "<parsed>%#v", v)
 		var timestamp time.Time
 		if t, ok := v["@timestamp"]; ok {
 			timestamp = t.(time.Time)
@@ -84,7 +84,10 @@ func (c *commandRunner) run(spec *commandSpec, parser parser.Parser) {
 			Timestamp: timestamp,
 			Fields:    v,
 		}
-		c.client.Publish(event)
+		c.debug(spec, "<event>%#v", event)
+		if !spec.debug {
+			c.client.Publish(event)
+		}
 	}
 	if err := cmd.Wait(); err != nil {
 		if e2, ok := err.(*exec.ExitError); ok {

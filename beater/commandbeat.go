@@ -27,12 +27,25 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	if err := cfg.Unpack(&c); err != nil {
 		return nil, fmt.Errorf("Error reading config file: %v", err)
 	}
+	if err := parseConfig(&c); err != nil {
+		return nil, fmt.Errorf("Error parsing config: %v", err)
+	}
 
 	bt := &Commandbeat{
 		done:   make(chan struct{}),
 		config: c,
 	}
 	return bt, nil
+}
+
+func parseConfig(c *config.Config) error {
+	if c.Debug {
+		for name, task := range c.Tasks {
+			task.Debug = true
+			c.Tasks[name] = task
+		}
+	}
+	return nil
 }
 
 // Run starts the commandbeat application.

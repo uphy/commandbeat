@@ -14,6 +14,7 @@ type (
 	// Config is the root struct for the config file.
 	Config struct {
 		Tasks map[string]TaskConfig `config:"tasks"`
+		Debug bool                  `config:"debug"`
 	}
 	// TaskConfig represents the task config.
 	TaskConfig struct {
