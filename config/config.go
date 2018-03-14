@@ -21,6 +21,7 @@ type (
 		WorkingDirectory string                 `config:"workdir"`
 		ParserRaw        map[string]interface{} `config:"parser"`
 		Schedule         string                 `config:"schedule"`
+		Debug            bool                   `config:"debug"`
 	}
 )
 
