@@ -7,6 +7,7 @@ import (
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
 
+	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
 )
 
@@ -59,7 +60,8 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 		return err
 	}
 
-	scheduler := newTaskSchedular(bt.client)
+	runner := command.NewRunner(newPublishHandler(newElasticsearchPublisher(bt.client)))
+	scheduler := newTaskSchedular(runner)
 	defer scheduler.stop()
 	for name, task := range bt.config.Tasks {
 		spec := task.Schedule

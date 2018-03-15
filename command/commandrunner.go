@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	CommandRunner struct {
+	Runner struct {
 		handler Handler
 	}
 	Spec struct {
@@ -29,16 +29,16 @@ type (
 	}
 )
 
-func NewCommand(name string, commandName string, parser parser.Parser, debug bool, args ...string) *Spec {
+func NewSpec(name string, commandName string, parser parser.Parser, debug bool, args ...string) *Spec {
 	cmd := Spec{name, commandName, args, 0, parser, debug}
 	return &cmd
 }
 
-func NewCommandRunner(handler Handler) *CommandRunner {
-	return &CommandRunner{handler}
+func NewRunner(handler Handler) *Runner {
+	return &Runner{handler}
 }
 
-func (c *CommandRunner) Run(spec *Spec) error {
+func (c *Runner) Run(spec *Spec) error {
 	cmd := exec.Command(spec.Command, spec.Args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

@@ -7,21 +7,18 @@ import (
 	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
 
-	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/logp"
 )
 
 type (
 	taskScheduler struct {
 		c      *cron.Cron
-		runner *command.CommandRunner
+		runner *command.Runner
 	}
 )
 
-func newTaskSchedular(client beat.Client) *taskScheduler {
-	c := cron.New()
-	runner := command.NewCommandRunner(NewPublishHandler(newElasticsearchPublisher(client)))
-	return &taskScheduler{c, runner}
+func newTaskSchedular(runner *command.Runner) *taskScheduler {
+	return &taskScheduler{cron.New(), runner}
 }
 
 func (t *taskScheduler) schedule(spec string, name string, task *config.TaskConfig) error {
@@ -52,7 +49,7 @@ func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) 
 	if err != nil {
 		return nil, err
 	}
-	return command.NewCommand(name, commandName, parser, task.Debug, commandArgs...), nil
+	return command.NewSpec(name, commandName, parser, task.Debug, commandArgs...), nil
 }
 
 func (t *taskScheduler) start() {

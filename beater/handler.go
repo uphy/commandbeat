@@ -3,15 +3,27 @@ package beater
 import (
 	"github.com/elastic/beats/libbeat/logp"
 	"github.com/uphy/commandbeat/command"
+
+	"fmt"
+	"time"
+
+	"github.com/elastic/beats/libbeat/beat"
+	"github.com/elastic/beats/libbeat/common"
 )
 
 type (
 	publishHandler struct {
 		publisher *elasticPublisher
 	}
+	Publisher interface {
+		Publish(spec *command.Spec, v common.MapStr)
+	}
+	elasticPublisher struct {
+		client beat.Client
+	}
 )
 
-func NewPublishHandler(publisher *elasticPublisher) *publishHandler {
+func newPublishHandler(publisher *elasticPublisher) *publishHandler {
 	return &publishHandler{publisher}
 }
 
@@ -29,4 +41,33 @@ func (p *publishHandler) HandleStdOut(spec *command.Spec, out string) error {
 
 func (p *publishHandler) HandleStdErr(spec *command.Spec, err string) error {
 	return nil
+}
+
+func newElasticsearchPublisher(client beat.Client) *elasticPublisher {
+	return &elasticPublisher{client}
+}
+
+func (e *elasticPublisher) Publish(spec *command.Spec, v common.MapStr) {
+	var timestamp time.Time
+	if t, ok := v["@timestamp"]; ok {
+		timestamp = t.(time.Time)
+		delete(v, "@timestamp")
+	} else {
+		timestamp = time.Now()
+	}
+	v["type"] = spec.Name
+	event := beat.Event{
+		Timestamp: timestamp,
+		Fields:    v,
+	}
+	e.LogDebug(spec, "<event>%#v", event)
+	if !spec.Debug {
+		e.client.Publish(event)
+	}
+}
+
+func (e *elasticPublisher) LogDebug(spec *command.Spec, msg string, args ...interface{}) {
+	if spec.Debug {
+		logp.Info("[%s] %s", spec.Name, fmt.Sprintf(msg, args...))
+	}
 }
