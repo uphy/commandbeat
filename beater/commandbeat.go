@@ -1,7 +1,6 @@
 package beater
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
-	"github.com/uphy/commandbeat/parser"
 )
 
 // Commandbeat represents the client for commandbeat
@@ -70,7 +68,7 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 		if scheduleSpec == "" {
 			scheduleSpec = defaultSchedule
 		}
-		commandSpec, err := bt.createSpec(name, &task)
+		commandSpec, err := newSpec(name, &task)
 		if err != nil {
 			return err
 		}
@@ -92,40 +90,4 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 func (bt *Commandbeat) Stop() {
 	bt.client.Close()
 	close(bt.done)
-}
-
-func (bt *Commandbeat) createSpec(name string, task *config.TaskConfig) (command.Spec, error) {
-	c, err := task.Command()
-	if err != nil {
-		return nil, err
-	}
-	if len(c) == 0 {
-		return nil, errors.New("command empty")
-	}
-	commandName := c[0]
-	commandArgs := []string{}
-	if len(c) > 0 {
-		commandArgs = c[1:]
-	}
-	parser, err := task.Parser()
-	if err != nil {
-		return nil, err
-	}
-	return &commandSpec{name, commandName, commandArgs, parser, task.Debug}, nil
-}
-
-type commandSpec struct {
-	name    string
-	command string
-	args    []string
-	parser  parser.Parser
-	debug   bool
-}
-
-func (c *commandSpec) Command() string {
-	return c.command
-}
-
-func (c *commandSpec) Args() []string {
-	return c.args
 }

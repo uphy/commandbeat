@@ -3,23 +3,12 @@ package beater
 import (
 	"github.com/elastic/beats/libbeat/logp"
 	"github.com/uphy/commandbeat/command"
-
-	"fmt"
-	"time"
-
-	"github.com/elastic/beats/libbeat/beat"
-	"github.com/elastic/beats/libbeat/common"
 )
 
 type (
+	// publishHandler is command result handler which parses and publish to elasticsearch.
 	publishHandler struct {
 		publisher *elasticPublisher
-	}
-	Publisher interface {
-		Publish(spec *commandSpec, v common.MapStr)
-	}
-	elasticPublisher struct {
-		client beat.Client
 	}
 )
 
@@ -54,33 +43,4 @@ func (p *publishHandler) AfterExit(spec command.Spec, status int) error {
 	s := spec.(*commandSpec)
 	logp.Info("Finished command. (name=%s, status=%d)", s.name, status)
 	return nil
-}
-
-func newElasticPublisher(client beat.Client) *elasticPublisher {
-	return &elasticPublisher{client}
-}
-
-func (e *elasticPublisher) Publish(spec *commandSpec, v common.MapStr) {
-	var timestamp time.Time
-	if t, ok := v["@timestamp"]; ok {
-		timestamp = t.(time.Time)
-		delete(v, "@timestamp")
-	} else {
-		timestamp = time.Now()
-	}
-	v["type"] = spec.name
-	event := beat.Event{
-		Timestamp: timestamp,
-		Fields:    v,
-	}
-	e.LogDebug(spec, "<event>%#v", event)
-	if !spec.debug {
-		e.client.Publish(event)
-	}
-}
-
-func (e *elasticPublisher) LogDebug(spec *commandSpec, msg string, args ...interface{}) {
-	if spec.debug {
-		logp.Info("[%s] %s", spec.name, fmt.Sprintf(msg, args...))
-	}
 }

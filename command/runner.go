@@ -10,13 +10,16 @@ import (
 )
 
 type (
+	// Runner runs command.  command result is handled with Handler interface.
 	Runner struct {
 		handler Handler
 	}
+	// Spec represents command and its arguments.
 	Spec interface {
 		Command() string
 		Args() []string
 	}
+	// Handler handles command result.
 	Handler interface {
 		BeforeStart(spec Spec) error
 		HandleStdOut(spec Spec, out string) error
@@ -25,10 +28,12 @@ type (
 	}
 )
 
+// NewRunner creates a new runner.
 func NewRunner(handler Handler) *Runner {
 	return &Runner{handler}
 }
 
+// Run runs the specified command.
 func (c *Runner) Run(spec Spec) error {
 	if err := c.handler.BeforeStart(spec); err != nil {
 		return err
