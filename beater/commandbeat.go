@@ -60,19 +60,19 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 		return err
 	}
 
-	runner := command.NewRunner(newPublishHandler(newElasticsearchPublisher(bt.client)))
-	scheduler := newTaskSchedular(runner)
-	defer scheduler.stop()
+	runner := command.NewRunner(newPublishHandler(newElasticPublisher(bt.client)))
+	scheduler := command.NewScheduler(runner)
+	defer scheduler.Stop()
 	for name, task := range bt.config.Tasks {
 		spec := task.Schedule
 		if spec == "" {
 			spec = defaultSchedule
 		}
-		if err := scheduler.schedule(spec, name, &task); err != nil {
+		if err := scheduler.Schedule(spec, name, &task); err != nil {
 			return err
 		}
 	}
-	scheduler.start()
+	scheduler.Start()
 
 	for {
 		select {

@@ -27,6 +27,11 @@ func newPublishHandler(publisher *elasticPublisher) *publishHandler {
 	return &publishHandler{publisher}
 }
 
+func (p *publishHandler) BeforeStart(spec *command.Spec) error {
+	logp.Info("Running command... (name=%s)", spec.Name)
+	return nil
+}
+
 func (p *publishHandler) HandleStdOut(spec *command.Spec, out string) error {
 	p.publisher.LogDebug(spec, "<stdout>%s", out)
 	v, err := spec.Parser.Parse(out)
@@ -43,7 +48,12 @@ func (p *publishHandler) HandleStdErr(spec *command.Spec, err string) error {
 	return nil
 }
 
-func newElasticsearchPublisher(client beat.Client) *elasticPublisher {
+func (p *publishHandler) AfterExit(spec *command.Spec, status int) error {
+	logp.Info("Finished command. (name=%s, status=%d)", spec.Name, status)
+	return nil
+}
+
+func newElasticPublisher(client beat.Client) *elasticPublisher {
 	return &elasticPublisher{client}
 }
 

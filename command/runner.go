@@ -24,8 +24,10 @@ type (
 		Debug      bool
 	}
 	Handler interface {
+		BeforeStart(spec *Spec) error
 		HandleStdOut(spec *Spec, out string) error
 		HandleStdErr(spec *Spec, err string) error
+		AfterExit(spec *Spec, status int) error
 	}
 )
 
@@ -39,6 +41,9 @@ func NewRunner(handler Handler) *Runner {
 }
 
 func (c *Runner) Run(spec *Spec) error {
+	if err := c.handler.BeforeStart(spec); err != nil {
+		return err
+	}
 	cmd := exec.Command(spec.Command, spec.Args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -67,6 +72,9 @@ func (c *Runner) Run(spec *Spec) error {
 				exitStatus := s.ExitStatus()
 				if exitStatus != spec.ExitStatus {
 					return fmt.Errorf("Unexpected exit status. (cmd=%v, status=%d)", cmd.Args, exitStatus)
+				}
+				if err := c.handler.AfterExit(spec, exitStatus); err != nil {
+					return err
 				}
 			} else {
 				return errors.New("can not get exit status code in your environment")
