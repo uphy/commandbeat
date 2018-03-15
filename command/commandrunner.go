@@ -9,8 +9,6 @@ import (
 	"syscall"
 
 	"github.com/uphy/commandbeat/parser"
-
-	"github.com/elastic/beats/libbeat/logp"
 )
 
 type (
@@ -38,12 +36,6 @@ func NewCommand(name string, commandName string, parser parser.Parser, debug boo
 
 func NewCommandRunner(handler Handler) *CommandRunner {
 	return &CommandRunner{handler}
-}
-
-func (c *Spec) LogDebug(msg string, args ...interface{}) {
-	if c.Debug {
-		logp.Info("[%s] %s", c.Name, fmt.Sprintf(msg, args...))
-	}
 }
 
 func (c *CommandRunner) Run(spec *Spec) error {

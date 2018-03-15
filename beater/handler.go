@@ -7,22 +7,22 @@ import (
 
 type (
 	publishHandler struct {
-		publisher Publisher
+		publisher *elasticPublisher
 	}
 )
 
-func NewPublishHandler(publisher Publisher) command.Handler {
+func NewPublishHandler(publisher *elasticPublisher) *publishHandler {
 	return &publishHandler{publisher}
 }
 
 func (p *publishHandler) HandleStdOut(spec *command.Spec, out string) error {
-	spec.LogDebug("<stdout>%s", out)
+	p.publisher.LogDebug(spec, "<stdout>%s", out)
 	v, err := spec.Parser.Parse(out)
 	if err != nil {
 		logp.Err("failed to parse the line got from stdin. (command=%s, args=%v, line=%s, err=%s)", spec.Command, spec.Args, out, err)
 		return nil
 	}
-	spec.LogDebug("<parsed>%#v", v)
+	p.publisher.LogDebug(spec, "<parsed>%#v", v)
 	p.publisher.Publish(spec, v)
 	return nil
 }
