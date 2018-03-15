@@ -9,12 +9,15 @@ import (
 )
 
 type (
+	Publisher interface {
+		Publish(spec *command.Spec, v common.MapStr)
+	}
 	elasticsearchPublisher struct {
 		client beat.Client
 	}
 )
 
-func newElasticsearchPublisher(client beat.Client) command.Publisher {
+func newElasticsearchPublisher(client beat.Client) Publisher {
 	return &elasticsearchPublisher{client}
 }
 

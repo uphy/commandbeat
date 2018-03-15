@@ -10,33 +10,34 @@ import (
 
 	"github.com/uphy/commandbeat/parser"
 
-	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
 )
 
 type (
 	CommandRunner struct {
-		publisher Publisher
+		handler Handler
 	}
 	Spec struct {
 		Name       string
 		Command    string
 		Args       []string
 		ExitStatus int
+		Parser     parser.Parser
 		Debug      bool
 	}
-	Publisher interface {
-		Publish(spec *Spec, v common.MapStr)
+	Handler interface {
+		HandleStdOut(spec *Spec, out string) error
+		HandleStdErr(spec *Spec, err string) error
 	}
 )
 
-func NewCommand(name string, commandName string, debug bool, args ...string) *Spec {
-	cmd := Spec{name, commandName, args, 0, debug}
+func NewCommand(name string, commandName string, parser parser.Parser, debug bool, args ...string) *Spec {
+	cmd := Spec{name, commandName, args, 0, parser, debug}
 	return &cmd
 }
 
-func NewCommandRunner(publisher Publisher) *CommandRunner {
-	return &CommandRunner{publisher}
+func NewCommandRunner(handler Handler) *CommandRunner {
+	return &CommandRunner{handler}
 }
 
 func (c *Spec) LogDebug(msg string, args ...interface{}) {
@@ -45,7 +46,7 @@ func (c *Spec) LogDebug(msg string, args ...interface{}) {
 	}
 }
 
-func (c *CommandRunner) Run(spec *Spec, parser parser.Parser) error {
+func (c *CommandRunner) Run(spec *Spec) error {
 	cmd := exec.Command(spec.Command, spec.Args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -62,17 +63,11 @@ func (c *CommandRunner) Run(spec *Spec, parser parser.Parser) error {
 			if err == io.EOF {
 				break
 			}
-			logp.Err("failed to read stdin. (cmd=%v, err=%s)", cmd.Args, err)
+			return fmt.Errorf("failed to read stdin. (cmd=%v, err=%s)", cmd.Args, err)
 		}
-		lineStr := string(line)
-		spec.LogDebug("<stdout>%s", line)
-		v, err := parser.Parse(lineStr)
-		if err != nil {
-			logp.Err("failed to parse the line got from stdin. (cmd=%v, line=%s, err=%s)", cmd.Args, lineStr, err)
-			continue
+		if err := c.handler.HandleStdOut(spec, string(line)); err != nil {
+			return err
 		}
-		spec.LogDebug("<parsed>%#v", v)
-		c.publisher.Publish(spec, v)
 	}
 	if err := cmd.Wait(); err != nil {
 		if e2, ok := err.(*exec.ExitError); ok {

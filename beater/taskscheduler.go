@@ -20,7 +20,7 @@ type (
 
 func newTaskSchedular(client beat.Client) *taskScheduler {
 	c := cron.New()
-	runner := command.NewCommandRunner(newElasticsearchPublisher(client))
+	runner := command.NewCommandRunner(NewPublishHandler(newElasticsearchPublisher(client)))
 	return &taskScheduler{c, runner}
 }
 
@@ -29,13 +29,9 @@ func (t *taskScheduler) schedule(spec string, name string, task *config.TaskConf
 	if err != nil {
 		return err
 	}
-	parser, err := task.Parser()
-	if err != nil {
-		return err
-	}
 	return t.c.AddFunc(spec, func() {
 		logp.Info("Running task... (name=%s)", name)
-		t.runner.Run(commandSpec, parser)
+		t.runner.Run(commandSpec)
 	})
 }
 
@@ -52,7 +48,11 @@ func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) 
 	if len(c) > 0 {
 		commandArgs = c[1:]
 	}
-	return command.NewCommand(name, commandName, task.Debug, commandArgs...), nil
+	parser, err := task.Parser()
+	if err != nil {
+		return nil, err
+	}
+	return command.NewCommand(name, commandName, parser, task.Debug, commandArgs...), nil
 }
 
 func (t *taskScheduler) start() {
