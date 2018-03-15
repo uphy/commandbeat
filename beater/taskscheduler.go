@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/robfig/cron"
+	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -13,13 +14,13 @@ import (
 type (
 	taskScheduler struct {
 		c      *cron.Cron
-		runner *commandRunner
+		runner *command.CommandRunner
 	}
 )
 
 func newTaskSchedular(client beat.Client) *taskScheduler {
 	c := cron.New()
-	runner := newCommandRunner(client)
+	runner := command.NewCommandRunner(newElasticsearchPublisher(client))
 	return &taskScheduler{c, runner}
 }
 
@@ -34,11 +35,11 @@ func (t *taskScheduler) schedule(spec string, name string, task *config.TaskConf
 	}
 	return t.c.AddFunc(spec, func() {
 		logp.Info("Running task... (name=%s)", name)
-		t.runner.run(commandSpec, parser)
+		t.runner.Run(commandSpec, parser)
 	})
 }
 
-func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) (*commandSpec, error) {
+func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) (*command.Spec, error) {
 	c, err := task.Command()
 	if err != nil {
 		return nil, err
@@ -51,7 +52,7 @@ func (t *taskScheduler) createCommandSpec(name string, task *config.TaskConfig) 
 	if len(c) > 0 {
 		commandArgs = c[1:]
 	}
-	return newCommand(name, commandName, task.Debug, commandArgs...), nil
+	return command.NewCommand(name, commandName, task.Debug, commandArgs...), nil
 }
 
 func (t *taskScheduler) start() {
