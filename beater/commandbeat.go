@@ -1,6 +1,7 @@
 package beater
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -64,11 +65,15 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 	scheduler := command.NewScheduler(runner)
 	defer scheduler.Stop()
 	for name, task := range bt.config.Tasks {
-		spec := task.Schedule
-		if spec == "" {
-			spec = defaultSchedule
+		scheduleSpec := task.Schedule
+		if scheduleSpec == "" {
+			scheduleSpec = defaultSchedule
 		}
-		if err := scheduler.Schedule(spec, name, &task); err != nil {
+		commandSpec, err := bt.createSpec(name, &task)
+		if err != nil {
+			return err
+		}
+		if err := scheduler.Schedule(scheduleSpec, commandSpec); err != nil {
 			return err
 		}
 	}
@@ -86,4 +91,24 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 func (bt *Commandbeat) Stop() {
 	bt.client.Close()
 	close(bt.done)
+}
+
+func (bt *Commandbeat) createSpec(name string, task *config.TaskConfig) (*command.Spec, error) {
+	c, err := task.Command()
+	if err != nil {
+		return nil, err
+	}
+	if len(c) == 0 {
+		return nil, errors.New("command empty")
+	}
+	commandName := c[0]
+	commandArgs := []string{}
+	if len(c) > 0 {
+		commandArgs = c[1:]
+	}
+	parser, err := task.Parser()
+	if err != nil {
+		return nil, err
+	}
+	return command.NewSpec(name, commandName, parser, task.Debug, commandArgs...), nil
 }
