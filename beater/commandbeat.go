@@ -10,6 +10,7 @@ import (
 
 	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
+	"github.com/uphy/commandbeat/parser"
 )
 
 // Commandbeat represents the client for commandbeat
@@ -93,7 +94,7 @@ func (bt *Commandbeat) Stop() {
 	close(bt.done)
 }
 
-func (bt *Commandbeat) createSpec(name string, task *config.TaskConfig) (*command.Spec, error) {
+func (bt *Commandbeat) createSpec(name string, task *config.TaskConfig) (command.Spec, error) {
 	c, err := task.Command()
 	if err != nil {
 		return nil, err
@@ -110,5 +111,21 @@ func (bt *Commandbeat) createSpec(name string, task *config.TaskConfig) (*comman
 	if err != nil {
 		return nil, err
 	}
-	return command.NewSpec(name, commandName, parser, task.Debug, commandArgs...), nil
+	return &commandSpec{name, commandName, commandArgs, parser, task.Debug}, nil
+}
+
+type commandSpec struct {
+	name    string
+	command string
+	args    []string
+	parser  parser.Parser
+	debug   bool
+}
+
+func (c *commandSpec) Command() string {
+	return c.command
+}
+
+func (c *commandSpec) Args() []string {
+	return c.args
 }

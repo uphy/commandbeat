@@ -7,44 +7,33 @@ import (
 	"io"
 	"os/exec"
 	"syscall"
-
-	"github.com/uphy/commandbeat/parser"
 )
 
 type (
 	Runner struct {
 		handler Handler
 	}
-	Spec struct {
-		Name       string
-		Command    string
-		Args       []string
-		ExitStatus int
-		Parser     parser.Parser
-		Debug      bool
+	Spec interface {
+		Command() string
+		Args() []string
 	}
 	Handler interface {
-		BeforeStart(spec *Spec) error
-		HandleStdOut(spec *Spec, out string) error
-		HandleStdErr(spec *Spec, err string) error
-		AfterExit(spec *Spec, status int) error
+		BeforeStart(spec Spec) error
+		HandleStdOut(spec Spec, out string) error
+		HandleStdErr(spec Spec, err string) error
+		AfterExit(spec Spec, status int) error
 	}
 )
-
-func NewSpec(name string, commandName string, parser parser.Parser, debug bool, args ...string) *Spec {
-	cmd := Spec{name, commandName, args, 0, parser, debug}
-	return &cmd
-}
 
 func NewRunner(handler Handler) *Runner {
 	return &Runner{handler}
 }
 
-func (c *Runner) Run(spec *Spec) error {
+func (c *Runner) Run(spec Spec) error {
 	if err := c.handler.BeforeStart(spec); err != nil {
 		return err
 	}
-	cmd := exec.Command(spec.Command, spec.Args...)
+	cmd := exec.Command(spec.Command(), spec.Args()...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return fmt.Errorf("failed to get stdout. (cmd=%v, err=%s)", cmd.Args, err)
@@ -70,9 +59,6 @@ func (c *Runner) Run(spec *Spec) error {
 		if e2, ok := err.(*exec.ExitError); ok {
 			if s, ok := e2.Sys().(syscall.WaitStatus); ok {
 				exitStatus := s.ExitStatus()
-				if exitStatus != spec.ExitStatus {
-					return fmt.Errorf("Unexpected exit status. (cmd=%v, status=%d)", cmd.Args, exitStatus)
-				}
 				if err := c.handler.AfterExit(spec, exitStatus); err != nil {
 					return err
 				}
