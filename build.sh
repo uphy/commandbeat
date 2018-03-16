@@ -15,3 +15,10 @@ do
   mkdir -p build/dist
   tar zcf build/dist/$name.tar.gz -C build/package $name
 done
+
+# Tags locally for deploying on all commit.
+VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
+git config --local user.name "Yuhi Ishikura"
+git config --local user.email "yuhi.ishikura@uphy.jp"
+git tag -d "$VERSION"
+git tag -a "$VERSION" -m "$VERSION"

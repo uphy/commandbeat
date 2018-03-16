@@ -13,10 +13,6 @@ os:
   - osx
 
 env:
-  matrix:
-    # - TARGETS="ci"
-    - TARGETS="crosscompile"
-
   global:
     # Cross-compile for amd64 only to speed up testing.
     - GOX_FLAGS="-arch amd64"

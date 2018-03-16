@@ -1,5 +1,7 @@
-[![Build Status](https://travis-ci.org/uphy/commandbeat.svg?branch=master)](https://travis-ci.org/uphy/commandbeat)
-[![Coverage Status](https://coveralls.io/repos/github/uphy/commandbeat/badge.svg)](https://coveralls.io/github/uphy/commandbeat)
+[![Build Status](https://travis-ci.org/uphy/commandbeat.svg?branch=develop)](https://travis-ci.org/uphy/commandbeat)
+[![Coverage Status](https://coveralls.io/repos/github/uphy/commandbeat/badge.svg?branch=develop)](https://coveralls.io/github/uphy/commandbeat?branch=develop)
+[![Maintainability](https://api.codeclimate.com/v1/badges/860e57d9ca3c20643803/maintainability)](https://codeclimate.com/github/uphy/commandbeat/maintainability)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Commandbeat
 
