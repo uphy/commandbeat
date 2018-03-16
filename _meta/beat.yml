@@ -3,5 +3,58 @@
 ############################# Commandbeat ######################################
 
 commandbeat:
-  # Defines how often an event is sent to the output
-  period: 1s
+  # debug mode.  if true, print the command and the parsed result but will not publish to elasticsearch.
+  debug: false
+  # define tasks to run.
+  tasks:
+    # this example simply execute the command and publish the raw string as 'message'.
+    command-string:
+      # command to execute
+      command: echo "hello world"
+    # this example defines command with command array.
+    command-array:
+      command: 
+        - echo
+        - hello world
+    # this example parses the result as csv
+    parser-csv:
+      command: echo "hello,world,1"
+      parser:
+        type: csv
+        fields:
+          - name: field1
+            type: string
+          - name: field2
+            type: string
+          - name: field3
+            type: int
+    # this example parses the multiline result as csv.
+    parser-csv-multi:
+      command: sh -c 'echo "2018/03/10 11:17:10,hello\n2018/03/10 11:17:12,hello"'
+      schedule: "@every 1s"
+      parser:
+        type: csv
+        fields:
+          - name: "@timestamp"
+            type: timestamp
+            format: 2006/01/02 15:04:05
+          - name: message
+            type: string
+    # this example parses json string.
+    parser-json:
+      command: echo '{"message":"hello world", "year":2018}'
+      parser:
+        type: json
+    # this example specifies schedule.
+    schedule-cron1:
+      command: echo "hello world"
+      schedule: "@every 1m"
+    # this example specifies schedule with detailed spec.
+    schedule-cron2:
+      command: echo "hello world"
+      schedule: "*/15 * * * *"
+    # this example is debug task.
+    debug-task:
+      command: echo hello
+      debug: true
+      schedule: "*/3 * * * *"

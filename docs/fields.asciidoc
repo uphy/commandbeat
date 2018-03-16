@@ -173,13 +173,13 @@ None
 
 
 [float]
-=== `counter`
+=== `type`
 
-type: long
+type: keyword
 
-required: True
+required: False
 
-PLEASE UPDATE DOCUMENTATION
+task name.
 
 
 [[exported-fields-docker-processor]]

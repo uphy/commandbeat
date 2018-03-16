@@ -171,8 +171,8 @@
   title: commandbeat
   description:
   fields:
-    - name: counter
-      type: long
-      required: true
+    - name: type
+      type: keyword
+      required: false
       description: >
-        PLEASE UPDATE DOCUMENTATION
+        task name.
