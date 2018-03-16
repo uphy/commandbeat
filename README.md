@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/uphy/commandbeat.svg?branch=master)](https://travis-ci.org/uphy/commandbeat)
+[![Coverage Status](https://coveralls.io/repos/github/uphy/commandbeat/badge.svg)](https://coveralls.io/github/uphy/commandbeat)
 
 # Commandbeat
 
