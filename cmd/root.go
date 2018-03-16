@@ -10,7 +10,7 @@ import (
 var Name = "commandbeat"
 
 // Version of this beat
-var Version = "0.0.2"
+var Version = "0.0.2pre"
 
 // RootCmd to handle beats cli
 var RootCmd = cmd.GenRootCmd(Name, Version, beater.New)

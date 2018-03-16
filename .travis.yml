@@ -1,3 +1,9 @@
+branches:
+  only:
+  - master
+  - develop
+  - "/^[0-9\\.]+$/"
+ 
 sudo: required
 dist: trusty
 services:
@@ -41,6 +47,13 @@ script:
 after_success:
   # Copy full.cov to coverage.txt because codecov.io requires this file
 
+before_deploy:
+  - VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
+  - git config --local user.name "Yuhi Ishikura"
+  - git config --local user.email "yuhi.ishikura@uphy.jp"
+  - 'git tag -d "$VERSION" || :'
+  - git tag -a "$VERSION" -m "$VERSION"
+
 deploy:
   provider: releases
   skip_cleanup: true
@@ -48,5 +61,6 @@ deploy:
   file_glob: true
   file: '/home/travis/gopath/src/github.com/uphy/commandbeat/build/dist/*'
   overwrite: true
+  prerelease: true
   on:
-    tags: true
+    all_branches: true
