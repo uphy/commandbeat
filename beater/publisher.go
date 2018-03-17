@@ -37,7 +37,7 @@ func (e *elasticPublisher) Publish(spec *commandSpec, v common.MapStr) {
 		Timestamp: timestamp,
 		Fields:    v,
 	}
-	e.LogDebug(spec, "<event>%#v", event)
+	e.LogDebug(spec, "<event> %#v", event)
 	if !spec.debug {
 		e.client.Publish(event)
 	}
