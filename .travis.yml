@@ -41,8 +41,8 @@ after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
   - VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
-  - git config --local user.name "Yuhi Ishikura"
-  - git config --local user.email "yuhi.ishikura@uphy.jp"
+  - git config --local user.name "Travis CI"
+  - git config --local user.email "travis@dummy.com"
   - 'git tag -d "$VERSION" || :'
   - git tag -a "$VERSION" -m "$VERSION"
 deploy:
