@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export GOX_FLAGS="-arch amd64"
+export GOX_FLAGS="-os=\"linux darwin windows\" -arch amd64"
 make crosscompile
 
 for file in $(find build/bin -type f)
