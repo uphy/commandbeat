@@ -1,45 +1,49 @@
 branches:
   only:
-  - master
-  - develop
-  - "/^[0-9\\.]+$/"
+    - master
+    - develop
+    - "/^[0-9\\.]+$/"
 sudo: required
 dist: trusty
 services:
-- docker
+  - docker
 language: go
 go:
-- 1.9.4
+  - 1.9.4
 os:
-- linux
-- osx
+  - linux
+  - osx
 env:
   global:
-  - GOX_FLAGS="-arch amd64"
-  - GOX_OS=linux darwin windows
+    - GOX_FLAGS="-arch amd64"
+    - GOX_OS=linux darwin windows
 addons:
   apt:
     packages:
-    - python-virtualenv
+      - python-virtualenv
 before_install:
-- umask 022
-- mkdir -p $HOME/gopath/src/github.com/uphy/commandbeat/
-- rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/uphy/commandbeat/
-- export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/uphy/commandbeat/
-- cd $HOME/gopath/src/github.com/uphy/commandbeat/
-- go get github.com/mattn/goveralls
+  - umask 022
+  - mkdir -p $HOME/gopath/src/github.com/uphy/commandbeat/
+  - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/uphy/commandbeat/
+  - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/uphy/commandbeat/
+  - cd $HOME/gopath/src/github.com/uphy/commandbeat/
 install:
-- true
+  - true
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
-- "./build.sh"
-- "$GOPATH/bin/goveralls -service=travis-ci"
-after_success: 
+  - "./build.sh"
+after_script:
+  - ./testcoverage.sh
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
-- VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
-- git config --local user.name "Yuhi Ishikura"
-- git config --local user.email "yuhi.ishikura@uphy.jp"
-- 'git tag -d "$VERSION" || :'
-- git tag -a "$VERSION" -m "$VERSION"
+  - VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
+  - git config --local user.name "Yuhi Ishikura"
+  - git config --local user.email "yuhi.ishikura@uphy.jp"
+  - 'git tag -d "$VERSION" || :'
+  - git tag -a "$VERSION" -m "$VERSION"
 deploy:
   provider: releases
   skip_cleanup: true
