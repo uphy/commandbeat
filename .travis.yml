@@ -16,7 +16,7 @@ os:
 env:
   global:
     - GOX_FLAGS="-arch amd64"
-    - GOX_OS=linux darwin windows
+    - GOX_OS="linux darwin windows"
 addons:
   apt:
     packages:
@@ -30,7 +30,8 @@ before_install:
 install:
   - true
 before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then CC_FILENAME="test-reporter-latest-darwin-amd64"; else CC_FILENAME="test-reporter-latest-linux-amd64"; fi
+  - curl -L https://codeclimate.com/downloads/test-reporter/$CC_FILENAME > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
