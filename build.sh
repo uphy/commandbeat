@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export GOX_FLAGS="-arch amd64"
 make crosscompile
 
 for file in $(find build/bin -type f)
