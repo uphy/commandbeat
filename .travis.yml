@@ -16,6 +16,7 @@ os:
 env:
   global:
   - GOX_FLAGS="-arch amd64"
+  - GOX_OS=linux darwin windows
 addons:
   apt:
     packages:
