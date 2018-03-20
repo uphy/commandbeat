@@ -40,6 +40,7 @@ after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 before_deploy:
   - VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
+  - if [[ "$TRAVIS_BRANCH" == "develop" ]]; then VERSION=${VERSION}pre; fi
   - git config --local user.name "Travis CI"
   - git config --local user.email "travis@dummy.com"
   - 'git tag -d "$VERSION" || :'
