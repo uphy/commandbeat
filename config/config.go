@@ -23,6 +23,7 @@ type (
 		ParserRaw        map[string]interface{} `config:"parser"`
 		Schedule         string                 `config:"schedule"`
 		Debug            bool                   `config:"debug"`
+		Shell            bool                   `config:"shell"`
 	}
 )
 
@@ -35,6 +36,14 @@ var (
 
 // Command parses the command line as array.
 func (t *TaskConfig) Command() ([]string, error) {
+	if t.Shell {
+		switch t.CommandRaw.(type) {
+		case string:
+			return []string{t.CommandRaw.(string)}, nil
+		default:
+			return nil, fmt.Errorf("command argument must be a string when shell==true. (argument=%v)", t.CommandRaw)
+		}
+	}
 	if array, ok := t.CommandRaw.([]interface{}); ok {
 		var v = []string{}
 		for _, elm := range array {

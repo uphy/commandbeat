@@ -24,7 +24,7 @@ func newElasticPublisher(client beat.Client) *elasticPublisher {
 	return &elasticPublisher{client}
 }
 
-func (e *elasticPublisher) Publish(spec *commandSpec, v common.MapStr) {
+func (e *elasticPublisher) Publish(spec commandSpec, v common.MapStr) {
 	var timestamp time.Time
 	if t, ok := v["@timestamp"]; ok {
 		timestamp = t.(time.Time)
@@ -32,19 +32,19 @@ func (e *elasticPublisher) Publish(spec *commandSpec, v common.MapStr) {
 	} else {
 		timestamp = time.Now()
 	}
-	v["type"] = spec.name
+	v["type"] = spec.name()
 	event := beat.Event{
 		Timestamp: timestamp,
 		Fields:    v,
 	}
 	e.LogDebug(spec, "<event> %#v", event)
-	if !spec.debug {
+	if !spec.debug() {
 		e.client.Publish(event)
 	}
 }
 
-func (e *elasticPublisher) LogDebug(spec *commandSpec, msg string, args ...interface{}) {
-	if spec.debug {
-		logp.Info("[%s] %s", spec.name, fmt.Sprintf(msg, args...))
+func (e *elasticPublisher) LogDebug(spec commandSpec, msg string, args ...interface{}) {
+	if spec.debug() {
+		logp.Info("[%s] %s", spec.name(), fmt.Sprintf(msg, args...))
 	}
 }

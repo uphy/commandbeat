@@ -13,9 +13,10 @@ import (
 
 // Commandbeat represents the client for commandbeat
 type Commandbeat struct {
-	done   chan struct{}
-	config config.Config
-	client beat.Client
+	done          chan struct{}
+	config        config.Config
+	client        beat.Client
+	scriptManager *scriptManager
 }
 
 const (
@@ -31,10 +32,15 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	if err := parseConfig(&c); err != nil {
 		return nil, fmt.Errorf("Error parsing config: %v", err)
 	}
+	scriptManager, err := newScriptManager(".scripts")
+	if err != nil {
+		return nil, fmt.Errorf("Script manager cannot be created: %v", err)
+	}
 
 	bt := &Commandbeat{
-		done:   make(chan struct{}),
-		config: c,
+		done:          make(chan struct{}),
+		config:        c,
+		scriptManager: scriptManager,
 	}
 	return bt, nil
 }
@@ -68,7 +74,7 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 		if scheduleSpec == "" {
 			scheduleSpec = defaultSchedule
 		}
-		commandSpec, err := newSpec(name, &task)
+		commandSpec, err := bt.newSpec(name, &task)
 		if err != nil {
 			return err
 		}
@@ -90,4 +96,9 @@ func (bt *Commandbeat) Run(b *beat.Beat) error {
 func (bt *Commandbeat) Stop() {
 	bt.client.Close()
 	close(bt.done)
+
+	logp.Info("Cleaning the work directory for script manager.")
+	if err := bt.scriptManager.clean(); err != nil {
+		logp.Err("script manager cannot be cleaned up. (dir=%s, err=%v)", bt.scriptManager.directory, err)
+	}
 }
