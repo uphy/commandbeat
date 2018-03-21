@@ -9,20 +9,13 @@ import (
 	"github.com/uphy/commandbeat/parser"
 )
 
-type commandSpec interface {
-	command.Spec
-	parser() parser.Parser
-	name() string
-	debug() bool
-}
-
 // defaultCommandSpec implements command.Spec interface.
-type defaultCommandSpec struct {
-	_name   string
+type commandSpec struct {
+	name    string
 	command string
 	args    []string
-	_parser parser.Parser
-	_debug  bool
+	parser  parser.Parser
+	debug   bool
 }
 
 func (cb *Commandbeat) newSpec(name string, task *config.TaskConfig) (command.Spec, error) {
@@ -40,7 +33,7 @@ func (cb *Commandbeat) newSpec(name string, task *config.TaskConfig) (command.Sp
 		if err != nil {
 			return nil, fmt.Errorf("Failed to create script file. (dir=%s, name=%s, err=%s)", cb.scriptManager.directory, name, err)
 		}
-		return &defaultCommandSpec{
+		return &commandSpec{
 			name,
 			s.Command(),
 			s.Args(),
@@ -60,25 +53,13 @@ func (cb *Commandbeat) newSpec(name string, task *config.TaskConfig) (command.Sp
 	if len(c) > 0 {
 		commandArgs = c[1:]
 	}
-	return &defaultCommandSpec{name, commandName, commandArgs, parser, task.Debug}, nil
+	return &commandSpec{name, commandName, commandArgs, parser, task.Debug}, nil
 }
 
-func (c *defaultCommandSpec) Command() string {
+func (c *commandSpec) Command() string {
 	return c.command
 }
 
-func (c *defaultCommandSpec) Args() []string {
+func (c *commandSpec) Args() []string {
 	return c.args
-}
-
-func (c *defaultCommandSpec) parser() parser.Parser {
-	return c._parser
-}
-
-func (c *defaultCommandSpec) name() string {
-	return c._name
-}
-
-func (c *defaultCommandSpec) debug() bool {
-	return c._debug
 }
