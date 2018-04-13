@@ -18,7 +18,7 @@ commandbeat:
         - hello world
     # this example parses the result as csv
     parser-csv:
-      command: echo "hello,world,1"
+      command: echo "hello,world,1,1.5,true"
       parser:
         type: csv
         fields:
@@ -28,6 +28,10 @@ commandbeat:
             type: string
           - name: field3
             type: int
+          - name: field4
+            type: float
+          - name: field5
+            type: bool
     # this example parses the multiline result as csv.
     parser-csv-multi:
       command: sh -c 'echo "2018/03/10 11:17:10,hello\n2018/03/10 11:17:12,hello"'
@@ -58,7 +62,22 @@ commandbeat:
       command: echo hello
       debug: true
       schedule: "*/3 * * * *"
+    # this example execute shell script.
+    shell:
+      command: |
+        #!/bin/bash
 
+        LOADAVERAGE=$(uptime | sed -e "s/.* load averages: \([0-9.]*\).*/\1/")
+        if [ $(echo "$LOADAVERAGE > 1" | bc) ]; then
+          echo $LOADAVERAGE
+        fi
+      shell: true
+      parser:
+        type: csv
+        fields:
+          - name: load
+            type: float
+      schedule: "*/3 * * * *"
 #================================ General =====================================
 
 # The name of the shipper that publishes the network data. It can be used to group

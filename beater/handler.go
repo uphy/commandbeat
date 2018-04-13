@@ -24,19 +24,24 @@ func (p *publishHandler) BeforeStart(spec command.Spec) error {
 
 func (p *publishHandler) HandleStdOut(spec command.Spec, out string) error {
 	s := spec.(*commandSpec)
-	p.publisher.LogDebug(s, "<stdout>%s", out)
+	p.publisher.LogDebug(s, "<stdout> %s", out)
 	v, err := s.parser.Parse(out)
 	if err != nil {
-		logp.Err("failed to parse the line got from stdin. (command=%s, args=%v, line=%s, err=%s)", spec.Command, spec.Args, out, err)
+		logp.Err("failed to parse the line got from stdin. (command=%s, args=%v, line=%s, err=%s)", spec.Command(), spec.Args(), out, err)
 		return nil
 	}
-	p.publisher.LogDebug(s, "<parsed>%#v", v)
+	p.publisher.LogDebug(s, "<parsed> %#v", v)
 	p.publisher.Publish(s, v)
 	return nil
 }
 
 func (p *publishHandler) HandleStdErr(spec command.Spec, err string) error {
 	return nil
+}
+
+func (p *publishHandler) HandleErr(spec command.Spec, err error) {
+	s := spec.(*commandSpec)
+	logp.Err("Command execution error. (command=%s, err=%v)", s.name, err)
 }
 
 func (p *publishHandler) AfterExit(spec command.Spec, status int) error {

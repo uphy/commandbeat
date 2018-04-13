@@ -2,13 +2,14 @@ package beater
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/uphy/commandbeat/command"
 	"github.com/uphy/commandbeat/config"
 	"github.com/uphy/commandbeat/parser"
 )
 
-// commandSpec implements command.Spec interface.
+// defaultCommandSpec implements command.Spec interface.
 type commandSpec struct {
 	name    string
 	command string
@@ -17,7 +18,29 @@ type commandSpec struct {
 	debug   bool
 }
 
-func newSpec(name string, task *config.TaskConfig) (command.Spec, error) {
+func (cb *Commandbeat) newSpec(name string, task *config.TaskConfig) (command.Spec, error) {
+	parser, err := task.Parser()
+	if err != nil {
+		return nil, err
+	}
+
+	if task.Shell {
+		script, err := task.Command()
+		if err != nil {
+			return nil, err
+		}
+		s, err := cb.scriptManager.createScript(name, script[0])
+		if err != nil {
+			return nil, fmt.Errorf("Failed to create script file. (dir=%s, name=%s, err=%s)", cb.scriptManager.directory, name, err)
+		}
+		return &commandSpec{
+			name,
+			s.Command(),
+			s.Args(),
+			parser,
+			task.Debug,
+		}, nil
+	}
 	c, err := task.Command()
 	if err != nil {
 		return nil, err
@@ -29,10 +52,6 @@ func newSpec(name string, task *config.TaskConfig) (command.Spec, error) {
 	commandArgs := []string{}
 	if len(c) > 0 {
 		commandArgs = c[1:]
-	}
-	parser, err := task.Parser()
-	if err != nil {
-		return nil, err
 	}
 	return &commandSpec{name, commandName, commandArgs, parser, task.Debug}, nil
 }
