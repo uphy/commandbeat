@@ -34,27 +34,19 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
-  - "./build.sh"
+  - if [ "$TRAVIS_TAG" == "" ]; then make; else make package; fi
 after_script:
   - ./testcoverage.sh
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-before_deploy:
-  - VERSION=$(grep "var Version" cmd/root.go | sed -e 's/^.*"\(.*\)"$/\1/')
-  - if [[ "$TRAVIS_BRANCH" == "develop" ]]; then VERSION=${VERSION}pre; fi
-  - git config --local user.name "Travis CI"
-  - git config --local user.email "travis@dummy.com"
-  - 'git tag -d "$VERSION" || :'
-  - git tag -a "$VERSION" -m "$VERSION"
 deploy:
   provider: releases
   skip_cleanup: true
   api_key: "$GITHUB_TOKEN"
   file_glob: true
-  file: "/home/travis/gopath/src/github.com/uphy/commandbeat/build/dist/*"
+  file: "/home/travis/gopath/src/github.com/uphy/commandbeat/build/upload/*"
   overwrite: true
-  prerelease: true
   on:
-    all_branches: true
+    tags: true
 notifications:
   slack:
     secure: zPv73PWfvVKBSnyw2+4G4zxXD3PU1J1CX493RIf2NShLPzPIsmXeKavfTbky5Yg2oaoj+9HMD3w/Mm11HJwr5BPl7oBmbZ3AI3sbOgjakshnEJ+tRi/j6pKhNFAgCBbfXlFUnzXt4HuN5zVojiHJXZhVz00lX4d9gbGzfAesI2QUEYeT+7T1ZdF0bLGfZ0QZjSJu2WMaNu5u/0q2+lEZu2rSJ72D0+Bfi0e8SB+vzewKwmVuR8dQli9U0YOW53BC9EI1duHjGRqsBqkkQGVUf8mvIwqBqV06vS5KfYN2TnT6ZzVgDnWuSmI8DSwrwAc3EpM3KqrwOWsibEXAporOWbyKWDuz49VvzvDE5G6LdE1K+NIuXTcOU0T5NVlqp/SG4N+Xl8kFy0TICo+GJ0bJc7RU/RJ1A6AD+rh3Xk91GG8i1XN8bDuvW4CLIH8jGxfok8SREftAhkFhJbICvit1eATsK9XxjV07Si9jSaRnlKqVwlMvZ1x6i1+ovf3dR0iHqaLQOnBSs0NDYm5y4KgXLV2jQHAWJPrAtXClI5FOBzPi82QMWHNs4A674Wdk3MLkqMwTyNCPcxcAdn9ypVI1/wVzhWAA8CGnm53QGtbx5GQi4IO8Yuu6jFzlbYRxrXfbiMG40riL9UlDWsp39duobro9CVsW/uDs+mbkOE+xf7I=
