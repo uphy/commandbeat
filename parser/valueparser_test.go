@@ -19,7 +19,7 @@ func TestNewValueParser(t *testing.T) {
 		t.Errorf("failed to create field: %s", err)
 	}
 	if _, err := newValueParser(ValueTypeTimestamp, map[string]interface{}{
-		"format": "2006/01/02 15:04:05",
+		"format": "yyyy/MM/dd HH:mm:ss",
 	}); err != nil {
 		t.Errorf("failed to create field: %s", err)
 	}
@@ -41,7 +41,7 @@ func TestValueParserNew(t *testing.T) {
 		t.Errorf("type is not supported type but created new instance (parser=%v, err=%v)", v, err)
 	}
 	if _, err := newValueParser(ValueTypeTimestamp, map[string]interface{}{
-		OptionNameFormat: "2006/01/02 15:04:05",
+		OptionNameFormat: "yyyy/MM/dd HH:mm:ss",
 	}); err != nil {
 		t.Errorf("cannot create timestamp ValueParser with format.")
 	}
@@ -119,7 +119,7 @@ func TestValueParser_bool(t *testing.T) {
 
 func TestValueParser_timestamp(t *testing.T) {
 	parser, _ := newValueParser(ValueTypeTimestamp, map[string]interface{}{
-		OptionNameFormat: "2006/01/02 15:04:05",
+		OptionNameFormat: "yyyy/MM/dd HH:mm:ss",
 	})
 	if _, err := parser.Parse("2018/03/11 15:07:53"); err != nil {
 		t.Errorf("cannot parse timestamp.")
