@@ -4,7 +4,7 @@ layout: default
 
 # Getting Started
 
-Download command beat from [GitHub Releases page](https://github.com/uphy/commandbeat/releases/tag/{{ page.version }}).
+Download command beat from [GitHub Releases page](https://github.com/uphy/commandbeat/releases/tag/{{ site.version }}).
 You can see [Metricbeat installation](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-installation.html) guide as a reference.
 
 Also you can install using docker.
@@ -28,10 +28,10 @@ EOF
 Start commandbeat with the above config file.
 
 ```bash
-$ docker run -it --rm -v "$(pwd)/config:/etc/commandbeat" uphy/commandbeat:{{ page.version }}
+$ docker run -it --rm -v "$(pwd)/config:/etc/commandbeat" uphy/commandbeat:{{ site.version }}
 ```
 
-If you use Docker Compose, see also [docker-compose.yml](https://github.com/uphy/commandbeat/blob/master/docker/docker-compose.yml).
+If you use Docker Compose, see also [docker-compose.yml](https://github.com/uphy/commandbeat/blob/{{ site.version }}/docker/docker-compose.yml).
 
 # Config file format
 
