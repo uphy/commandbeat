@@ -31,6 +31,8 @@ Start commandbeat with the above config file.
 $ docker run -it --rm -v "$(pwd)/config:/etc/commandbeat" uphy/commandbeat:{{ page.version }}
 ```
 
+If you use Docker Compose, see also [docker-compose.yml](https://github.com/uphy/commandbeat/blob/master/docker/docker-compose.yml).
+
 # Config file format
 
 ## Define the tasks

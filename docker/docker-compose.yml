@@ -2,10 +2,7 @@ version: "3"
 
 services:
   commandbeat:
-    build:
-      context: .
-      args:
-        VERSION: ${VERSION}
+    image: uphy/commandbeat:0.0.3
     volumes:
       - "./commandbeat.yml:/etc/commandbeat/commandbeat.yml"
   elasticsearch:

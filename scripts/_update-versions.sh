@@ -12,5 +12,6 @@ fi
 
 cd $(dirname $0)/..
 sed -i -e "s/^ARG VERSION=.*$/ARG VERSION=$1/" docker/Dockerfile
+sed -i -e "s@uphy/commandbeat:.*@uphy/commandbeat:$1@" docker/docker-compose.yml
 sed -i -e "s/var Version = \".*\"/var Version = \"$1\"/" cmd/root.go
 sed -i -e "s/version: \".*\"/version: \"$1\"/" docs/_config.yml
