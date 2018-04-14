@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/vjeantet/jodaTime"
 )
 
 type (
@@ -100,5 +101,5 @@ func (i *boolParser) Parse(value string) (interface{}, error) {
 }
 
 func (i *timestampParser) Parse(value string) (interface{}, error) {
-	return time.Parse(i.format, value)
+	return jodaTime.Parse(i.format, value)
 }

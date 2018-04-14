@@ -3,7 +3,7 @@ package parser
 import "testing"
 
 func TestMessageParser_Parse(t *testing.T) {
-	parser := NewMessageParser()
+	parser := NewDefaultParser()
 	v, err := parser.Parse("aiueo")
 	if err != nil {
 		t.Error(err)

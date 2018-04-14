@@ -41,7 +41,7 @@ commandbeat:
         fields:
           - name: "@timestamp"
             type: timestamp
-            format: 2006/01/02 15:04:05
+            format: yyyy/MM/dd HH:mm:ss
           - name: message
             type: string
     # this example parses json string.

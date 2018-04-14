@@ -68,7 +68,7 @@ func (t *TaskConfig) Command() ([]string, error) {
 // Parser creates parser from config.
 func (t *TaskConfig) Parser() (parser.Parser, error) {
 	if t.ParserRaw == nil {
-		return parser.NewMessageParser(), nil
+		return parser.NewDefaultParser(), nil
 	}
 	return parser.NewParser(t.ParserRaw)
 }

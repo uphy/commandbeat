@@ -5,7 +5,7 @@ import (
 )
 
 func TestJSONParser_Parse(t *testing.T) {
-	parser := NewJSONParser()
+	parser := newJSONParser()
 	v, err := parser.Parse(`{"a":"aaa","b":1}`)
 	if err != nil {
 		t.Error(err)

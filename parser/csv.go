@@ -11,18 +11,19 @@ import (
 
 type (
 	csvParser struct {
-		fields []*Field
+		fields    []*Field
+		delimiter rune
 	}
 	// CSVConfig is used for unmarshal csv config.
 	CSVConfig struct {
-		Config
-		Fields []map[string]interface{} `yaml:"fields"`
+		Fields    []map[string]interface{} `yaml:"fields"`
+		Delimiter string                   `yaml:"delimiter"`
 	}
 	csvFactory struct {
 	}
 )
 
-func (c *csvFactory) Create(config map[string]interface{}) (Parser, error) {
+func (c *csvFactory) Create(config Config) (Parser, error) {
 	var csvConfig CSVConfig
 	if err := convert(config, &csvConfig); err != nil {
 		return nil, err
@@ -35,11 +36,24 @@ func (c *csvFactory) Create(config map[string]interface{}) (Parser, error) {
 		}
 		fields = append(fields, field)
 	}
-	return NewCSVParser(fields...)
+	parser, err := newCSVParser(fields...)
+	if err != nil {
+		return nil, err
+	}
+	if csvConfig.Delimiter == "" {
+		parser.delimiter = ','
+	} else {
+		r := []rune(csvConfig.Delimiter)
+		if len(r) != 1 {
+			return nil, errors.New("csv: delimiter must be a character")
+		}
+		parser.delimiter = r[0]
+	}
+	return parser, nil
 }
 
 // NewCSVParser create new CSV Parser.
-func NewCSVParser(fields ...*Field) (Parser, error) {
+func newCSVParser(fields ...*Field) (*csvParser, error) {
 	set := map[string]struct{}{}
 	for _, field := range fields {
 		if _, exist := set[field.Name]; exist {
@@ -47,11 +61,15 @@ func NewCSVParser(fields ...*Field) (Parser, error) {
 		}
 		set[field.Name] = struct{}{}
 	}
-	return &csvParser{fields}, nil
+	return &csvParser{
+		fields:    fields,
+		delimiter: ',',
+	}, nil
 }
 
 func (c *csvParser) Parse(line string) (common.MapStr, error) {
 	csvReader := csv.NewReader(strings.NewReader(line))
+	csvReader.Comma = c.delimiter
 	records, err := csvReader.Read()
 	if err != nil {
 		return nil, err

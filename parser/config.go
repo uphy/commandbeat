@@ -1,20 +1,19 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 
 	"gopkg.in/yaml.v2"
 )
 
 type (
-	// Config is base struct for unmarshalling config.
-	Config struct {
-		Type string `yaml:"type"`
-	}
 	// Factory is the factory interface to create Parser.
 	Factory interface {
-		Create(config map[string]interface{}) (Parser, error)
+		Create(config Config) (Parser, error)
 	}
+	// Config is the parser config.
+	Config map[string]interface{}
 )
 
 var (
@@ -39,13 +38,17 @@ func convert(from interface{}, to interface{}) error {
 
 // NewParser creates Parser from config.
 func NewParser(config map[string]interface{}) (Parser, error) {
-	var c Config
-	if err := convert(config, &c); err != nil {
-		return nil, err
+	t, ok := config["type"]
+	if !ok {
+		return NewDefaultParser(), nil
 	}
-	factory := factories[c.Type]
+	tstr, ok := t.(string)
+	if !ok {
+		return nil, errors.New("parser: invalid type value")
+	}
+	factory := factories[tstr]
 	if factory == nil {
-		return nil, fmt.Errorf("unsupported parser: %s", c.Type)
+		return nil, fmt.Errorf("unsupported parser: %s", t)
 	}
-	return factory.Create(config)
+	return factory.Create(Config(config))
 }

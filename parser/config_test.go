@@ -24,6 +24,11 @@ func TestNewParser(t *testing.T) {
 		t.Error(err)
 	}
 	if _, err := NewParser(map[string]interface{}{
+		"type": "csv",
+	}); err != nil {
+		t.Error(err)
+	}
+	if _, err := NewParser(map[string]interface{}{
 		"type": struct{}{},
 	}); err == nil {
 		t.Error("should fail")
