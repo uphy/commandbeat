@@ -9,12 +9,12 @@ type (
 	}
 )
 
-func (m *messageFactory) Create(config map[string]interface{}) (Parser, error) {
+func (m *messageFactory) Create(config Config) (Parser, error) {
 	return &messageParser{}, nil
 }
 
-// NewMessageParser creates message parser.  Message parser use stdout as document field 'message'.
-func NewMessageParser() Parser {
+// NewDefaultParser creates message parser.  Message parser use stdout as document field 'message'.
+func NewDefaultParser() Parser {
 	return &messageParser{}
 }
 

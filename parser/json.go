@@ -13,12 +13,12 @@ type (
 	}
 )
 
-func (m *jsonFactory) Create(config map[string]interface{}) (Parser, error) {
+func (m *jsonFactory) Create(config Config) (Parser, error) {
 	return &jsonParser{}, nil
 }
 
 // NewJSONParser creates new JSON Parser.
-func NewJSONParser() Parser {
+func newJSONParser() Parser {
 	return &jsonParser{}
 }
 
