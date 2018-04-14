@@ -1,0 +1,8 @@
+commandbeat:
+  tasks:
+    example:
+      command: echo "hello world"
+output:
+  elasticsearch:
+    hosts:
+      - "elasticsearch:9200"
