@@ -10,7 +10,14 @@ Welcome to Commandbeat.
 Ensure that this folder is at the following location:
 `${GOPATH}/src/github.com/uphy/commandbeat`
 
-## Getting Started with Commandbeat
+## For users
+
+Get latest Commandbeat from [GitHub releases](https://github.com/uphy/commandbeat/releases).  
+Docker image is also available [uphy/commandbeat](https://hub.docker.com/r/uphy/commandbeat/).
+
+See https://uphy.github.io/commandbeat/
+
+## For developers
 
 ### Requirements
 
