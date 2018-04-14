@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 
-ARG VERSION=
+ARG VERSION=0.0.3
 RUN apt-get update && \
     apt-get install -y curl && \
     apt-get clean && \

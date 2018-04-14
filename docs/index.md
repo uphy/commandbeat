@@ -31,6 +31,8 @@ Start commandbeat with the above config file.
 $ docker run -it --rm -v "$(pwd)/config:/etc/commandbeat" uphy/commandbeat:{{ page.version }}
 ```
 
+If you use Docker Compose, see also [docker-compose.yml](https://github.com/uphy/commandbeat/blob/master/docker/docker-compose.yml).
+
 # Config file format
 
 ## Define the tasks
@@ -49,7 +51,8 @@ commandbeat:
       schedule: "0 * * * *"
 ```
 
-All commands are treated as shell script.  You can write shell script directly in command.
+When you set `shell` to `true`, the `command` treated as shell script.
+Commandbeat writes the `command ` to a file and execute it.
 
 ```yaml
 commandbeat:
@@ -62,6 +65,7 @@ commandbeat:
           echo hello exist
         fi
       schedule: "@every 10s"
+      shell: true
 ```
 
 ## Parsing the command output
@@ -117,4 +121,25 @@ commandbeat:
       command: echo '{"message":"hello world", "year":2018}'
       parser:
         type: json
+```
+
+## Debugging
+
+If you set `debug` to `true`, the command and stdout/stderr were output to Beat log.
+There are two scopes, global and task-wise.
+
+global one:
+
+```yaml
+commandbeat:
+  debug: false
+```
+
+task-wise:
+
+```yaml
+commandbeat:
+  task1:
+    command: echo hello
+    debug: true
 ```
