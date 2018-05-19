@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -21,7 +20,6 @@ func TestCSVParserParse(t *testing.T) {
 	field3, _ := newField("field3", ValueTypeFloat, nil)
 	parser, _ := newCSVParser(field1, field2, field3)
 	m, err := parser.Parse("a,1,0.5")
-	fmt.Printf("%#v\n", field2)
 	if err != nil {
 		t.Errorf("csv cannot be parsed: %s", err)
 	}
@@ -45,6 +43,24 @@ func TestCSVParserParse(t *testing.T) {
 	}
 	if _, err := newField("a", "unsupportedtype", nil); err == nil {
 		t.Error("unsupported type accepted")
+	}
+
+	// parse empty string
+	if parsed, err := parser.Parse(",,"); err != nil {
+		t.Error("cannot parse empty records")
+	} else {
+		if hasKey, _ := parsed.HasKey("field1"); !hasKey {
+			t.Error("empty string cannot be parsed")
+		}
+		if v, _ := parsed.GetValue("field1"); v != "" {
+			t.Error("want empty string but ", v)
+		}
+		if hasKey, _ := parsed.HasKey("field2"); hasKey {
+			t.Error("empty number should not be contained")
+		}
+		if hasKey, _ := parsed.HasKey("field2"); hasKey {
+			t.Error("empty number should not be contained")
+		}
 	}
 }
 
