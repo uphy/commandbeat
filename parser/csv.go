@@ -79,6 +79,13 @@ func (c *csvParser) Parse(line string) (common.MapStr, error) {
 	}
 	doc := common.MapStr{}
 	for i, field := range c.fields {
+		// skip empty string
+		if records[i] == "" {
+			if _, isString := field.valueParser.(*stringParser); !isString {
+				continue
+			}
+		}
+
 		parsed, err := field.valueParser.Parse(records[i])
 		if err != nil {
 			return nil, err
