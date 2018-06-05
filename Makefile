@@ -47,3 +47,9 @@ before-build:
 # Collects all dependencies and then calls update
 .PHONY: collect
 collect:
+
+.PHONY: update-version
+update-version:
+	sed -i "" -e "/version:/ s/\".*\"/\"${VERSION}\"/" version.yml
+	sed -i "" -e "/var Version/ s/\".*\"/\"${VERSION}\"/" cmd/root.go
+	sed -i "" -e "/version:/ s/\".*\"/\"${VERSION}\"/" docs/_config.yml
