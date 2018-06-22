@@ -12,7 +12,12 @@ Welcome to Commandbeat.
 Get latest Commandbeat from [GitHub releases](https://github.com/uphy/commandbeat/releases).  
 Docker image is also available [uphy/commandbeat](https://hub.docker.com/r/uphy/commandbeat/).
 
-See https://uphy.github.io/commandbeat/
+See also https://uphy.github.io/commandbeat/
+
+### Commercial Use
+
+Commandbeat is free for commercial use.
+You can use without any limitation.
 
 ## For developers
 
